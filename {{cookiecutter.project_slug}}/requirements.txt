@@ -1,0 +1,12 @@
+# Jupyter packages
+jupyter == 1.0.0
+
+# Basic Data Science
+pandas
+numpy
+# scipy
+
+# Plotting
+matplotlib
+altair
+# seaborn

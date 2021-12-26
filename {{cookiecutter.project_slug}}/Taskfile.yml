@@ -1,0 +1,58 @@
+{% raw %}---
+version: '3'
+
+vars:
+  VENVDIR: "./.venv"
+  WITHVENV: ". {{.VENVDIR}}/bin/activate"
+
+
+tasks:
+  default:
+    cmds:
+      - task: notebook 
+
+
+  virtualenv-present:
+    desc: "Check virtualenv is in path if not install it"
+    cmds:
+      - "python3 -m pip install --user virtualenv"
+    status:
+      - "command -v virtualenv &> /dev/null"
+
+
+  create-venv:
+    desc: "Create virtual environment"
+    deps: [virtualenv-present]
+    cmds:
+      - "virtualenv .venv"
+      - ". {{.VENVDIR}}/bin/activate && pip install --upgrade pip"
+    generates:
+      - "{{.VENVDIR}}/bin/activate"
+
+
+  install-requirements:
+    deps: [create-venv]
+    env:
+    cmds:
+      - "{{.WITHVENV}} && pip install -r requirements.txt"
+
+
+  notebook:
+    desc: "Open a Jupyter notebook [default]"
+    deps: [install-requirements]
+    cmds:
+      - "{{.WITHVENV}} && jupyter notebook"
+
+
+  teardown:
+    desc: "Remove virtual environment"
+    cmds:
+      - "rm -rf {{.VENVDIR}}"
+
+
+  clean:
+    desc: "Clean up cache files"
+    cmds:
+      - 'find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf'
+      - "rm -rf notebooks/.ipynb_checkpoints"
+{% endraw %}
